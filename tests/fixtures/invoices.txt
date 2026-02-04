@@ -1,0 +1,3 @@
+id,client_id,amount,date,description
+1,1,100.00,2025-01-01,Design work
+2,1,150.50,2025-02-01,Consulting
