@@ -1,21 +1,72 @@
 # ==========================================
-# CLIENT MANAGEMENT - BASIC VERSION
+# CLIENT MANAGEMENT 
 # ==========================================
 
 FILENAME = "clients.txt"
 
-# --- 1. INITIALIZATION ---
-try:
-    file = open(FILENAME, "r")
-    file.close()
-except:
-    print("Initializing database...")
-    file = open(FILENAME, "w")
-    file.write("id,name,email\n")
-    file.close()
+
+# --- FUNCTIONS ---
+def init_file():
+    try:
+        f = open(FILENAME, "r")
+        f.close()
+    except:
+        print("Initializing database...")
+        f = open(FILENAME, "w")
+        f.write("id,name,email\n")
+        f.close()
 
 
-# --- 2. MAIN MENU LOOP ---
+def read_all_lines():
+    f = open(FILENAME, "r")
+    lines = f.readlines()
+    f.close()
+    return lines
+
+
+def get_next_id():
+    lines = read_all_lines()
+    return len(lines)
+
+
+def append_client(client_id, name, email):
+    f = open(FILENAME, "a")
+    f.write(str(client_id) + "," + name + "," + email + "\n")
+    f.close()
+
+
+def show_client_profile(client_id, name, email):
+    print("\n=========================")
+    print("     CLIENT PROFILE")
+    print("=========================")
+    print("ID    :", client_id)
+    print("Name  :", name)
+    print("Email :", email)
+    print("=========================")
+
+
+def display_clients():
+    print("\n------ CLIENT LIST ------")
+
+    f = open(FILENAME, "r")
+    f.readline()  # skip header
+
+    line = f.readline()
+    while line:
+        parts = line.strip().split(",")
+
+        if len(parts) >= 3:
+            print("ID:", parts[0], "| Name:", parts[1], "| Email:", parts[2])
+
+        line = f.readline()
+
+    f.close()
+    print("-------------------------")
+
+
+# --- PROGRAM START ---
+init_file()
+
 while True:
     print("\n=========================")
     print("   CLIENT MANAGEMENT")
@@ -27,57 +78,20 @@ while True:
 
     choice = input("What would you like to do? ")
 
-    # --- 3. ADD CLIENT + PROFILE ---
     if choice == "1":
         print("\nAdding a new client...")
         name = input("Name: ")
         email = input("Email: ")
 
-        # Get next ID
-        file = open(FILENAME, "r")
-        lines = file.readlines()
-        file.close()
+        new_id = get_next_id()
+        append_client(new_id, name, email)
 
-        new_id = len(lines)
-
-        # Save client
-        file = open(FILENAME, "a")
-        file.write(str(new_id) + "," + name + "," + email + "\n")
-        file.close()
-
-        # --- CLIENT PROFILE ---
-        print("\n=========================")
-        print("     CLIENT PROFILE")
-        print("=========================")
-        print("ID    :", new_id)
-        print("Name  :", name)
-        print("Email :", email)
-        print("=========================")
+        show_client_profile(new_id, name, email)
         print("Client created successfully.")
 
-    # --- 4. VIEW CLIENTS ---
     elif choice == "2":
-        print("\n------ CLIENT LIST ------")
+        display_clients()
 
-        file = open(FILENAME, "r")
-        file.readline()  # skip header
-
-        line = file.readline()
-        while line:
-            parts = line.strip().split(",")
-
-            print(
-                "ID:", parts[0],
-                "| Name:", parts[1],
-                "| Email:", parts[2]
-            )
-
-            line = file.readline()
-
-        file.close()
-        print("-------------------------")
-
-    # --- 5. EXIT ---
     elif choice == "3":
         print("Goodbye!")
         break

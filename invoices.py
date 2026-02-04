@@ -1,22 +1,62 @@
 # ==========================================
-# INVOICE MANAGEMENT - EDUCATIONAL VERSION
+# INVOICE MANAGEMENT - FUNCTIONAL VERSION
 # ==========================================
-# This script manages income from client invoices.
-# Notice the repetitive pattern of opening and closing files.
-# In a functional version, you would create a function for file operations!
 
 FILENAME = "invoices.txt"
 
-# --- 1. INITIALIZATION ---
-try:
-    file_test = open(FILENAME, "r")
-    file_test.close()
-except FileNotFoundError:
-    init_db = open(FILENAME, "w")
-    init_db.write("id,client_id,amount,date,description\n")
-    init_db.close()
 
-# --- 2. MAIN LOOP ---
+# --- FUNCTIONS ---
+def init_file():
+    try:
+        f = open(FILENAME, "r")
+        f.close()
+    except:
+        f = open(FILENAME, "w")
+        f.write("id,client_id,amount,date,description\n")
+        f.close()
+
+
+def read_all_lines():
+    f = open(FILENAME, "r")
+    lines = f.readlines()
+    f.close()
+    return lines
+
+
+def get_next_id():
+    lines = read_all_lines()
+    return len(lines)
+
+
+def append_invoice(data_line):
+    f = open(FILENAME, "a")
+    f.write(data_line)
+    f.close()
+
+
+def display_invoices():
+    f = open(FILENAME, "r")
+    f.readline()  # skip header
+
+    line = f.readline()
+    while line:
+        parts = line.strip().split(",")
+        if len(parts) >= 5:
+            print(
+                "INV #", parts[0],
+                "| Client", parts[1],
+                "| $", parts[2],
+                "|", parts[3],
+                "|", parts[4]
+            )
+        line = f.readline()
+
+    f.close()
+
+
+# --- PROGRAM START ---
+init_file()
+
 while True:
     print("\n" + "!"*25)
     print("   INVOICE TRACKER")
@@ -24,54 +64,36 @@ while True:
     print("1. Create New Invoice")
     print("2. List All Invoices")
     print("3. Exit Tracker")
-    
+
     choice = input("Selection: ")
 
-    # --- 3. ADD INVOICE SECTION ---
-    if choice == '1':
+    if choice == "1":
         print("\nEnter invoice details:")
-        client_id = input("- Client ID: ")
-        amount = input("- Amount (e.g. 150.50): ")
-        date = input("- Date (YYYY-MM-DD): ")
-        desc = input("- Description: ")
-        
-        # Calculate ID
-        file_read = open(FILENAME, "r")
-        all_lines = file_read.readlines()
-        file_read.close()
-        new_id = len(all_lines)
-        
-        # Save to file
-        file_append = open(FILENAME, "a")
-        # Format: id,client_id,amount,date,description
-        data_string = str(new_id) + "," + client_id + "," + amount + "," + date + "," + desc + "\n"
-        file_append.write(data_string)
-        file_append.close()
-        
-        print(f"Invoice #{new_id} saved successfully.")
+        client_id = input("Client ID: ")
+        amount = input("Amount: ")
+        date = input("Date (YYYY-MM-DD): ")
+        desc = input("Description: ")
 
-    # --- 4. LIST INVOICES SECTION ---
-    elif choice == '2':
+        new_id = get_next_id()
+        data = (
+            str(new_id) + "," +
+            client_id + "," +
+            amount + "," +
+            date + "," +
+            desc + "\n"
+        )
+
+        append_invoice(data)
+        print("Invoice #" + str(new_id) + " saved successfully.")
+
+    elif choice == "2":
         print("\n--- INVOICE HISTORY ---")
-        
-        file_view = open(FILENAME, "r")
-        header = file_view.readline() # Burn the header
-        
-        current_data = file_view.readline()
-        while current_data:
-            # Use split to break the CSV line into a list
-            parts = current_data.strip().split(",")
-            
-            if len(parts) >= 5:
-                print(f"INV #{parts[0]} | Client {parts[1]} | ${parts[2]} | {parts[3]} | {parts[4]}")
-            
-            current_data = file_view.readline()
-            
-        file_view.close()
-        print("-----------------------\n")
+        display_invoices()
+        print("-----------------------")
 
-    elif choice == '3':
+    elif choice == "3":
         print("Exiting...")
         break
+
     else:
         print("Try again.")
